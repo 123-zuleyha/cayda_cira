@@ -1,40 +1,42 @@
 package handlers
 
 import (
-	"organik_urun_sitesi/internal/services"
-
 	"github.com/gofiber/fiber/v2"
+
+	"organik_urun_sitesi/internal/services"
+	"organik_urun_sitesi/internal/utils"
 )
 
-type AuthHandler struct {
-	Service *services.AdminService
-}
-
-type LoginRequest struct {
+type AdminLoginRequest struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
-func (h *AuthHandler) Login(c *fiber.Ctx) error {
-	var req LoginRequest
+func AdminLogin(c *fiber.Ctx) error {
+	var req AdminLoginRequest
 
-	// JSON parse
 	if err := c.BodyParser(&req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Geçersiz istek",
 		})
 	}
 
-	// Admin login
-	token, err := h.Service.Login(req.Email, req.Password)
+	admin, err := services.AuthenticateAdmin(req.Email, req.Password)
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"error": err.Error(),
 		})
 	}
 
-	// Token döndür
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+	// ⚠️ UUID → string
+	token, err := utils.GenerateJWT(admin.ID.String(), admin.Email)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Token üretilemedi",
+		})
+	}
+
+	return c.JSON(fiber.Map{
 		"token": token,
 	})
 }

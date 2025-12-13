@@ -21,6 +21,8 @@ func SetupRoutes(app *fiber.App) {
 	api.Get("/categories", handlers.GetCategories)
 	api.Get("/products", handlers.GetProducts)
 	api.Get("/products/:id", handlers.GetProductDetail)
+	api.Post("/admin/login", handlers.AdminLogin)
+
 
 	// --------------------
 	// Admin routes (JWT protected)

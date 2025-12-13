@@ -7,15 +7,14 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-func GenerateJWT(adminID string) (string, error) {
-	secret := os.Getenv("JWT_SECRET")
-
+func GenerateJWT(adminID string, email string) (string, error) {
 	claims := jwt.MapClaims{
 		"admin_id": adminID,
-		"exp":      time.Now().Add(time.Hour * 24).Unix(),
+		"email":    email,
+		"exp":      time.Now().Add(24 * time.Hour).Unix(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	return token.SignedString([]byte(secret))
+	return token.SignedString([]byte(os.Getenv("JWT_SECRET")))
 }

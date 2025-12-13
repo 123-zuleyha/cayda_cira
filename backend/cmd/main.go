@@ -7,24 +7,26 @@ import (
 	"github.com/google/uuid"
 
 	"organik_urun_sitesi/config"
-	"organik_urun_sitesi/internal/handlers"
 	"organik_urun_sitesi/internal/models"
-	"organik_urun_sitesi/internal/services"
 	"organik_urun_sitesi/internal/utils"
 	"organik_urun_sitesi/router"
 )
 
 func main() {
-	// Load environment variables
+	// Load env
 	config.LoadEnv()
 
-	// Connect DB
+	// DB connect
 	config.ConnectDB()
 
-	// Admin table migrate
-	config.DB.AutoMigrate(&models.Admin{})
+	// 🔧 MIGRATIONS (ÇOK ÖNEMLİ)
+	config.DB.AutoMigrate(
+		&models.Admin{},
+		&models.Category{},
+		&models.Product{},
+	)
 
-	// Create default admin (ONLY FOR LOCAL DEV)
+	// 👤 Create default admin (LOCAL DEV)
 	passwordHash, _ := utils.HashPassword("admin123")
 
 	admin := models.Admin{
@@ -33,25 +35,15 @@ func main() {
 		PasswordHash: passwordHash,
 	}
 
-	// Eğer admin varsa tekrar oluşturmaz
 	config.DB.FirstOrCreate(&admin, models.Admin{Email: "admin@site.com"})
 
-	// Connect Cloudinary
+	// ☁️ Cloudinary
 	config.ConnectCloudinary()
 
-	// Fiber instance
+	// 🚀 Fiber app
 	app := fiber.New()
 
-	// Auth Handler
-	authHandler := handlers.AuthHandler{
-		Service: &services.AdminService{DB: config.DB},
-	}
-
-	// Auth Routes
-	auth := app.Group("/auth")
-	auth.Post("/login", authHandler.Login)
-
-	// Other routes
+	// 📌 Routes
 	router.SetupRoutes(app)
 
 	log.Println("Backend running on :8080")

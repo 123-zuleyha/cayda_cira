@@ -1,9 +1,13 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type Category struct {
-	ID        string    `json:"id" db:"id"`
-	Name      string    `json:"name" db:"name"`
-	CreatedAt time.Time `json:"created_at" db:"created_at"`
+	ID        uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
+	Name      string    `gorm:"unique;not null" json:"name"`
+	CreatedAt time.Time `json:"created_at"`
 }

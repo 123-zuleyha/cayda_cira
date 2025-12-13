@@ -1,13 +1,22 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type Product struct {
-	ID          string    `json:"id" db:"id"`
-	Name        string    `json:"name" db:"name"`
-	Description string    `json:"description" db:"description"`
-	CategoryID  string    `json:"category_id" db:"category_id"`
-	Images      []string  `json:"images" db:"images"`
-	Region      string    `json:"region" db:"region"`
-	CreatedAt   time.Time `json:"created_at" db:"created_at"`
+	ID uuid.UUID `gorm:"type:uuid;default:gen_random_uuid();primaryKey" json:"id"`
+
+	Name        string    `gorm:"not null" json:"name"`
+	Description string    `json:"description"`
+
+	CategoryID uuid.UUID `gorm:"type:uuid;not null" json:"category_id"`
+	Category   Category  `gorm:"foreignKey:CategoryID" json:"category"`
+
+	Images []string `gorm:"type:text[]" json:"images"`
+	Region string   `json:"region"`
+
+	CreatedAt time.Time `gorm:"autoCreateTime" json:"created_at"`
 }
