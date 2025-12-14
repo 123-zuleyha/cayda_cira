@@ -1,0 +1,188 @@
+basePath: /api
+definitions:
+  dto.CategoryPublicDTO:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  dto.ProductListResponse:
+    properties:
+      limit:
+        type: integer
+      page:
+        type: integer
+      products:
+        items:
+          $ref: '#/definitions/dto.ProductPublicDTO'
+        type: array
+      total:
+        type: integer
+    type: object
+  dto.ProductPublicDTO:
+    properties:
+      category:
+        $ref: '#/definitions/dto.CategoryPublicDTO'
+      description:
+        type: string
+      id:
+        type: string
+      images:
+        items:
+          type: string
+        type: array
+      name:
+        type: string
+      region:
+        type: string
+    type: object
+  models.Category:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  models.Product:
+    properties:
+      category:
+        $ref: '#/definitions/models.Category'
+      category_id:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      images:
+        items:
+          type: string
+        type: array
+      name:
+        type: string
+      region:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@example.com
+    name: API Support
+  description: Organik ürün tanıtım sitesi backend API
+  termsOfService: https://example.com/terms/
+  title: Organik Ürün API
+  version: "1.0"
+paths:
+  /admin/products:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Ürün
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/models.Product'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Product'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Ürün oluştur (Admin)
+      tags:
+      - Admin Products
+  /admin/products/{id}:
+    delete:
+      parameters:
+      - description: Ürün ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: Ürün sil (Admin)
+      tags:
+      - Admin Products
+  /products:
+    get:
+      consumes:
+      - application/json
+      description: Public product listing with pagination, search and category filter
+      parameters:
+      - description: Search by name
+        in: query
+        name: search
+        type: string
+      - description: Category ID
+        in: query
+        name: category
+        type: string
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ProductListResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Product list
+      tags:
+      - Products
+  /products/{id}:
+    get:
+      description: ID ile ürün detayını getirir
+      parameters:
+      - description: Ürün ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Product'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Ürün detayı
+      tags:
+      - Products
+swagger: "2.0"

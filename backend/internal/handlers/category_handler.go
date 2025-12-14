@@ -32,3 +32,18 @@ func CreateCategory(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusCreated).JSON(category)
 }
+func GetCategoryProducts(c *fiber.Ctx) error {
+	categoryID := c.Params("id")
+
+	page := c.QueryInt("page", 1)
+	limit := c.QueryInt("limit", 12)
+
+	result, err := services.GetProductsByCategory(categoryID, page, limit)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	return c.JSON(result)
+}

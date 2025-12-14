@@ -1,10 +1,24 @@
 package main
 
+// @title           Organik Ürün API
+// @version         1.0
+// @description     Organik ürün tanıtım sitesi backend API
+// @termsOfService  https://example.com/terms/
+
+// @contact.name    API Support
+// @contact.email   support@example.com
+
+// @host      localhost:8080
+// @BasePath  /api
+
 import (
 	"log"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/swagger" // ✅ Swagger handler
 	"github.com/google/uuid"
+
+	_ "organik_urun_sitesi/docs" // ✅ Swagger docs import (ÇOK ÖNEMLİ)
 
 	"organik_urun_sitesi/config"
 	"organik_urun_sitesi/internal/models"
@@ -19,7 +33,7 @@ func main() {
 	// DB connect
 	config.ConnectDB()
 
-	// 🔧 MIGRATIONS (ÇOK ÖNEMLİ)
+	// 🔧 MIGRATIONS
 	config.DB.AutoMigrate(
 		&models.Admin{},
 		&models.Category{},
@@ -42,6 +56,9 @@ func main() {
 
 	// 🚀 Fiber app
 	app := fiber.New()
+
+	// 📘 Swagger endpoint
+	app.Get("/api/swagger/*", swagger.HandlerDefault)
 
 	// 📌 Routes
 	router.SetupRoutes(app)
